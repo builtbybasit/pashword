@@ -1,10 +1,7 @@
-import React, { useEffect, useRef } from "react";
+import { useLottie } from "../hooks/useLottie";
 
 const Section3 = () => {
-  const ref = useRef(null);
-  useEffect(() => {
-    import("@lottiefiles/lottie-player");
-  });
+  const ref = useLottie();
 
   return (
     <section
@@ -26,9 +23,9 @@ const Section3 = () => {
           computer.
           <br />
           <br />
-          Pashword is cryptographically secure and works without internet. Don't
-          believe it? Just turn off your internet and see the magic. No remote
-          servers are ever used, everything happens on your device and
+          Pashword is cryptographically secure and works without internet.
+          Don&apos;t believe it? Just turn off your internet and see the magic.
+          No remote servers are ever used, everything happens on your device and
           everything is encrypted.
           <br />
           <br />
@@ -46,7 +43,7 @@ const Section3 = () => {
           >
             All deployments of Pashword are 100% verifiable
           </a>{" "}
-          so you know it'll always be transparent and safe.
+          so you know it&apos;ll always be transparent and safe.
         </p>
         <div className="w-4/5 xs:w-3/5 md:w-96">
           <lottie-player

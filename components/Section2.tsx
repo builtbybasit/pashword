@@ -1,10 +1,7 @@
-import React, { useEffect, useRef } from "react";
+import { useLottie } from "../hooks/useLottie";
 
 const Section2 = () => {
-  const ref = useRef(null);
-  useEffect(() => {
-    import("@lottiefiles/lottie-player");
-  });
+  const ref = useLottie();
 
   return (
     <section
@@ -16,7 +13,7 @@ const Section2 = () => {
           The Key is the Key
         </h1>
         <h2 className="z-10 text-base font-medium text-slate-500 xs:text-xl sm:text-3xl">
-          Know why it's important
+          Know why it&apos;s important
         </h2>
       </div>
       <div className="z-10 flex w-full flex-col items-center justify-center gap-10 px-2 sm:px-0 md:flex-row">
@@ -31,14 +28,14 @@ const Section2 = () => {
           ></lottie-player>
         </div>
         <p className="w-full px-5 text-center text-sm text-slate-300 xs:text-base sm:px-16 sm:text-2xl md:w-1/3 md:px-0 md:text-left">
-          Your secret key must be unique to you. It's important to choose a
+          Your secret key must be unique to you. It&apos;s important to choose a
           secret key that nobody else could guess and make sure you use a
           combination of symbols, uppercase letters and numbers for extra
           protection from hackers.
           <br />
           <br />
-          Pashword will tell you if your secret key is secure or not. It's very
-          important to not tell anyone your secret key or else hackers could
+          Pashword will tell you if your secret key is secure or not. It&apos;s
+          very important to not tell anyone your secret key or else hackers could
           find out all your passwords.
           <br />
           <br />

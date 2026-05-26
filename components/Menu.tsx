@@ -1,7 +1,4 @@
 import { AiFillGithub, AiOutlineCloseCircle } from "react-icons/ai";
-import React from "react";
-import { Switch } from "@headlessui/react";
-import Link from "next/link";
 
 interface IProps {
   showMenu: boolean;
@@ -17,12 +14,9 @@ const Menu = ({ showMenu, setShowMenu }: IProps) => {
     >
       <AiOutlineCloseCircle
         className="animate absolute top-2 right-2 z-10 cursor-pointer text-3xl text-slate-50/80 hover:text-slate-50"
-        onClick={() => {
-          setShowMenu(false);
-        }}
+        onClick={() => setShowMenu(false)}
       />
       <div className="flex h-full flex-col gap-5">
-        {/* HEADER */}
         <div>
           <h1 className="text-2xl font-bold text-slate-100">Pashword</h1>
           <h4 className="text-sm text-slate-400">
@@ -65,7 +59,6 @@ const Menu = ({ showMenu, setShowMenu }: IProps) => {
               <a href="#faq" onClick={() => setShowMenu(false)}>{`> FAQ`}</a>
             </div>
           </div>
-          {/* OTHER PROJECTS */}
           <div className="flex h-full flex-col gap-2">
             <p className="font-semibold text-slate-200">
               Checkout my other projects:
@@ -104,7 +97,6 @@ const Menu = ({ showMenu, setShowMenu }: IProps) => {
             </div>
           </div>
 
-          {/* FOOTER */}
           <div className="mt-10 flex flex-col items-center">
             <a
               href="https://github.com/NayamAmarshe/pashword"
@@ -147,7 +139,3 @@ const Menu = ({ showMenu, setShowMenu }: IProps) => {
 };
 
 export default Menu;
-
-{
-  /*  */
-}

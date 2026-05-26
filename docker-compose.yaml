@@ -1,5 +1,3 @@
-version: "3"
-
 services:
   pashword:
     container_name: pashword
@@ -8,4 +6,4 @@ services:
       dockerfile: Dockerfile
     restart: always
     ports:
-      - 3000:3000
+      - 3000:80

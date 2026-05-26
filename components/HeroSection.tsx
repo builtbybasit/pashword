@@ -1,9 +1,10 @@
+"use client";
+
 import { passwordStrength } from "check-password-strength";
 import { generatePashword } from "@pashword/pashword-lib";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { BiCopy, BiMouse } from "react-icons/bi";
 import NotWorkingModal from "./NotWorkingModal";
-import ReactTooltip from "react-tooltip";
 import { toast } from "react-toastify";
 import Dropdown from "./Dropdown";
 import {
@@ -11,7 +12,6 @@ import {
   AiFillEyeInvisible,
   AiFillQuestionCircle,
 } from "react-icons/ai";
-import Link from "next/link";
 
 interface IProps {
   passwordLength: number;
@@ -19,7 +19,7 @@ interface IProps {
 }
 
 const HeroSection = ({ passwordLength, setPasswordLength }: IProps) => {
-  const toastId = React.useRef<any>(null);
+  const toastId = useRef<string | number | null>(null);
 
   const [opacity, setOpacity] = useState(1);
   const [website, setWebsite] = useState("");
@@ -50,43 +50,37 @@ const HeroSection = ({ passwordLength, setPasswordLength }: IProps) => {
 
   useEffect(() => {
     setPassStrength(passwordStrength(password).id);
-    console.log(passwordStrength(password).id);
   }, [password]);
 
   const submitHandler = async (e: React.FormEvent) => {
     e.preventDefault();
-    let toHash = {
-      website,
-      username,
-      password,
-    };
+    const toHash = { website, username, password };
 
     if (website.length < 1) {
-      if (!toast.isActive(toastId.current)) {
+      if (!toast.isActive(toastId.current!)) {
         toastId.current = toast.error("Please enter a website");
       }
       return;
     }
 
     if (!website.includes(".")) {
-      if (!toast.isActive(toastId.current)) {
+      if (!toast.isActive(toastId.current!)) {
         toastId.current = toast.error(
           "Please enter a proper website address. For example: web.telegram.org OR protonmail.com",
-          { autoClose: 3000 }
+          { autoClose: 3000 },
         );
       }
-
       return;
     }
 
     if (username.length < 1) {
-      if (!toast.isActive(toastId.current)) {
+      if (!toast.isActive(toastId.current!)) {
         toastId.current = toast.error("Please enter a username");
       }
       return;
     }
     if (password.length < 1) {
-      if (!toast.isActive(toastId.current)) {
+      if (!toast.isActive(toastId.current!)) {
         toastId.current = toast.error("Please enter a password");
       }
       return;
@@ -95,65 +89,56 @@ const HeroSection = ({ passwordLength, setPasswordLength }: IProps) => {
     setPashword("");
     setGenerating(true);
 
-    let pashedPassword = await generatePashword(
+    const pashedPassword = await generatePashword(
       JSON.stringify(toHash),
       passwordLength,
       website,
-      username
+      username,
     );
 
     setGenerating(false);
-
     setPashword(pashedPassword);
 
-    if (!toast.isActive(toastId.current)) {
+    if (!toast.isActive(toastId.current!)) {
       toastId.current = toast.success(
-        "Pashword generated! Please click it to copy it!"
+        "Pashword generated! Please click it to copy it!",
       );
     }
   };
 
   const copyPashword = async () => {
-    navigator.clipboard
-      .writeText(pashword)
-      .then(() => {
-        if (!toast.isActive(toastId.current)) {
-          toastId.current = toast.success("Pashword copied to clipboard!");
-        }
-      })
-      .catch((e) => {
-        console.error(e);
-        if (!toast.isActive(toastId.current)) {
-          toastId.current = toast.error(
-            "Could not copy Pashword! Please copy it manually."
-          );
-        }
-      });
+    try {
+      await navigator.clipboard.writeText(pashword);
+      if (!toast.isActive(toastId.current!)) {
+        toastId.current = toast.success("Pashword copied to clipboard!");
+      }
+    } catch {
+      if (!toast.isActive(toastId.current!)) {
+        toastId.current = toast.error(
+          "Could not copy Pashword! Please copy it manually.",
+        );
+      }
+    }
   };
 
   return (
     <section className="background-image animate page-root animate relative">
-      {/* TOP SECTION */}
       <main className="flex flex-col items-center justify-center">
-        {/* LOGO */}
         <h1 className="background-animate z-10 text-2xl font-bold text-slate-50 xxs:text-6xl xs:text-7xl sm:text-8xl">
           Pashword
         </h1>
-        {/* SUB-HEADING */}
         <h5 className="z-10 text-center text-xs font-medium text-slate-400 xxs:text-lg xs:self-end sm:text-xl">
           Passwords done right
         </h5>
 
-        {/* FORM */}
         <form
           className="z-10 mt-5 flex w-4/5 flex-col items-center justify-center gap-y-1 text-center text-xs xxs:gap-y-5 xxs:text-base"
           onSubmit={submitHandler}
         >
-          {/* WEBSITE */}
           <div className="flex w-full flex-col items-center justify-center">
             <label
               className="input-label"
-              data-tip="Enter the website address here. For example: maglit.me OR brave.com OR google.com"
+              title="Enter the website address here. For example: maglit.me OR brave.com OR google.com"
             >
               Website <AiFillQuestionCircle className="inline-block" />
             </label>
@@ -165,16 +150,15 @@ const HeroSection = ({ passwordLength, setPasswordLength }: IProps) => {
               value={website}
               onChange={(e) => {
                 setWebsite(
-                  e.target.value.toLowerCase().replace(/[^a-z0-9\:\.\-]/, "")
+                  e.target.value.toLowerCase().replace(/[^a-z0-9:.\-]/g, ""),
                 );
               }}
             />
           </div>
-          {/* USERNAME */}
           <div className="flex w-full flex-col items-center justify-center">
             <label
               className="input-label"
-              data-tip="Enter the username on that website you're trying to generate the pashword for."
+              title="Enter the username on that website you're trying to generate the pashword for."
             >
               Username <AiFillQuestionCircle className="inline-block" />
             </label>
@@ -187,11 +171,10 @@ const HeroSection = ({ passwordLength, setPasswordLength }: IProps) => {
               onChange={(e) => setUsername(e.target.value)}
             />
           </div>
-          {/* SECRET CODE */}
           <div className="flex w-full flex-col items-center justify-center">
             <label
               className="input-label"
-              data-tip="Enter a strong secret key here. It should contain lower/uppercase letters, numbers and symbols. The color represents the strength, green is good, red is bad. Use the same secret key everytime you generate a pashword."
+              title="Enter a strong secret key here. It should contain lower/uppercase letters, numbers and symbols. The color represents the strength, green is good, red is bad. Use the same secret key everytime you generate a pashword."
             >
               Secret Key <AiFillQuestionCircle className="inline-block" />{" "}
             </label>
@@ -199,8 +182,8 @@ const HeroSection = ({ passwordLength, setPasswordLength }: IProps) => {
               <input
                 type={showSecretKey ? "text" : "password"}
                 name="passphrase"
-                className={`input-password 
-                ${password.length === 0 && "bg-slate-400/20"} 
+                className={`input-password
+                ${password.length === 0 && "bg-slate-400/20"}
                 ${
                   password.length > 0 &&
                   (passStrength === 0 || passStrength === 1) &&
@@ -216,31 +199,26 @@ const HeroSection = ({ passwordLength, setPasswordLength }: IProps) => {
               {showSecretKey ? (
                 <AiFillEye
                   className="absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer text-xl text-slate-200 xxs:right-4"
-                  onClick={() => {
-                    setShowSecretKey(false);
-                  }}
+                  onClick={() => setShowSecretKey(false)}
                 />
               ) : (
                 <AiFillEyeInvisible
                   className="absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer text-xl text-slate-300/60 xxs:right-4"
-                  onClick={() => {
-                    setShowSecretKey(true);
-                  }}
+                  onClick={() => setShowSecretKey(true)}
                 />
               )}
-              <Link href="#key" passHref>
-                <a className="absolute right-2 hidden text-slate-500 xxs:-bottom-6 xxs:block md:-bottom-7">
-                  Read This
-                </a>
-              </Link>
+              <a
+                href="#key"
+                className="absolute right-2 hidden text-slate-500 xxs:-bottom-6 xxs:block md:-bottom-7"
+              >
+                Read This
+              </a>
             </div>
-            {/* <AiFillEyeInvisible /> */}
           </div>
-          {/* PASSWORD LENGTH */}
           <div className="relative flex w-full flex-col items-center justify-center">
             <label
               className="input-label"
-              data-tip="If the website complains about password character length, you can change it here."
+              title="If the website complains about password character length, you can change it here."
             >
               Pashword Length <AiFillQuestionCircle className="inline-block" />
             </label>
@@ -249,17 +227,15 @@ const HeroSection = ({ passwordLength, setPasswordLength }: IProps) => {
               setPasswordLength={setPasswordLength}
             />
           </div>
-          {/* GET PASHWORD BUTTON */}
           <button
             type="submit"
             className={`submit-button ${
-              generating ? "opacity-50 cursor-wait" : ""
+              generating ? "cursor-wait opacity-50" : ""
             }`}
             disabled={generating}
           >
             {generating ? "Generating Pashword ⌛" : "Get Pashword 😎"}
           </button>
-          {/* PASHWORD POPUP */}
           <div
             className={`${
               pashword.length < 1
@@ -278,7 +254,7 @@ const HeroSection = ({ passwordLength, setPasswordLength }: IProps) => {
         </form>
         {pashword.length > 0 && (
           <button
-            type="submit"
+            type="button"
             className="mt-1 text-xs font-medium text-slate-500 sm:text-base"
             onClick={() => setNotWorking(true)}
           >
@@ -298,7 +274,6 @@ const HeroSection = ({ passwordLength, setPasswordLength }: IProps) => {
         />
       </main>
 
-      {/* SCROLL TO LEARN MORE */}
       {pashword.length < 1 && (
         <div
           className="absolute bottom-5 flex flex-col items-center gap-5 text-sm text-slate-400"
@@ -308,7 +283,6 @@ const HeroSection = ({ passwordLength, setPasswordLength }: IProps) => {
           Scroll to Learn More
         </div>
       )}
-      <ReactTooltip className="w-72 bg-white" />
     </section>
   );
 };

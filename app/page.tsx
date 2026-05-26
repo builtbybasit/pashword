@@ -1,3 +1,5 @@
+"use client";
+
 import PASSWORD_LENGTH from "../constants/passwordLength";
 import Illustration from "../components/Illustration";
 import { AiOutlineLeftCircle } from "react-icons/ai";
@@ -9,47 +11,49 @@ import Section1 from "../components/Section1";
 import Section2 from "../components/Section2";
 import Section3 from "../components/Section3";
 import Footer from "../components/Footer";
-import React, { MouseEventHandler, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Menu from "../components/Menu";
-import type { NextPage } from "next";
 import FAQ from "../components/FAQ";
 
-let deferredPrompt: any;
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+}
 
-const Home: NextPage = () => {
+let deferredPrompt: BeforeInstallPromptEvent | null = null;
+
+export default function Home() {
   const [passwordLength, setPasswordLength] = useState(PASSWORD_LENGTH.LARGE);
-  const [realtimeMode, setRealtimeMode] = useState(false);
   const [installable, setInstallable] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
 
   useEffect(() => {
-    window.addEventListener("beforeinstallprompt", (e) => {
-      // Prevent the mini-infobar from appearing on mobile
+    const handleBeforeInstall = (e: Event) => {
       e.preventDefault();
-      // Stash the event so it can be triggered later.
-      deferredPrompt = e;
-      // Update UI notify the user they can install the PWA
+      deferredPrompt = e as BeforeInstallPromptEvent;
       setInstallable(true);
-    });
+    };
 
-    window.addEventListener("appinstalled", () => {
-      // Log install to analytics
-      console.log("Certified Gamer");
-    });
+    const handleAppInstalled = () => {
+      deferredPrompt = null;
+      setInstallable(false);
+    };
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstall);
+    window.addEventListener("appinstalled", handleAppInstalled);
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstall);
+      window.removeEventListener("appinstalled", handleAppInstalled);
+    };
   }, []);
 
-  const handleInstallClick = (e: any) => {
-    // Hide the app provided install promotion
+  const handleInstallClick = () => {
+    if (!deferredPrompt) return;
     setInstallable(false);
-    // Show the install prompt
     deferredPrompt.prompt();
-    // Wait for the user to respond to the prompt
-    deferredPrompt.userChoice.then((choiceResult: any) => {
-      if (choiceResult.outcome === "accepted") {
-        console.log("Install Prompt Accepted");
-      } else {
-        console.log("As you wish my g");
-      }
+    deferredPrompt.userChoice.then(() => {
+      deferredPrompt = null;
     });
   };
 
@@ -59,12 +63,9 @@ const Home: NextPage = () => {
         showMenu && "h-screen overflow-y-hidden"
       }`}
     >
-      {/* MENU BUTTON */}
       <button
         className="absolute top-2 right-2 z-10 cursor-pointer text-3xl text-white/80"
-        onClick={() => {
-          setShowMenu(true);
-        }}
+        onClick={() => setShowMenu(true)}
       >
         <AiOutlineLeftCircle />
       </button>
@@ -82,7 +83,6 @@ const Home: NextPage = () => {
         </button>
       )}
 
-      {/* SECTIONS */}
       <HeroSection
         passwordLength={passwordLength}
         setPasswordLength={setPasswordLength}
@@ -92,12 +92,14 @@ const Home: NextPage = () => {
       <Illustration
         className="mx-auto px-5 pt-10 pb-10 md:px-20 lg:w-1/2 lg:px-0"
         source="/with-without-pashword.png"
+        alt="Comparison with and without Pashword"
         sectionId="with-without-pashword"
       />
       <Section3 />
       <Illustration
         className="mt-20 mb-20 md:px-10"
         source="/how-it-works.svg"
+        alt="How Pashword works"
         sectionId="how-it-works"
       />
       <FAQ />
@@ -110,6 +112,4 @@ const Home: NextPage = () => {
       />
     </div>
   );
-};
-
-export default Home;
+}
