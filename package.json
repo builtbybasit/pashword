@@ -2,7 +2,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && opennextjs-cloudflare build",
+    "build": "next build",
+    "build:worker": "next build && opennextjs-cloudflare build",
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
